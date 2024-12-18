@@ -1,5 +1,5 @@
 import { type Context, createHttpError, Status, type Middleware } from "@oak/oak";
-import type { Session } from "oak_sessions";
+import type { Session } from "https://deno.land/x/oak_sessions@v9.0.0/mod.ts";
 import jwt from 'npm:jsonwebtoken'
 import process from "node:process";
 
