@@ -1,6 +1,6 @@
 import { type Context, createHttpError, Status, type Middleware } from "@oak/oak";
 import type { Session } from "oak_sessions";
-import jwt from 'jsonwebtoken'
+import jwt from 'npm:jsonwebtoken'
 import process from "node:process";
 
 export const authHandler: Middleware<{ session: Session }> = async (ctx: Context<{ session: Session }>, next) => {
