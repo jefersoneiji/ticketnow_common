@@ -1,4 +1,4 @@
-import type { Middleware } from "@oak/oak";
+import type { Middleware } from "jsr:@oak/oak";
 
 export const errorHandler: Middleware = async (ctx, next) => {
     try {
