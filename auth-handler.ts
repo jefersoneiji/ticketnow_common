@@ -7,7 +7,7 @@ export const authHandler: Middleware<{ session: Session }> = async (ctx: Context
     try {
         const parsedJTW = await ctx.state.session.get('jwt') as string
         if (!parsedJTW) {
-            throw Error('Provide a valid authentication')
+            throw createHttpError(Status.Unauthorized, 'Provide a valid authentication.')
         }
         const token = parsedJTW.replace('Bearer ', "")
 
@@ -20,7 +20,7 @@ export const authHandler: Middleware<{ session: Session }> = async (ctx: Context
 
         // deno-lint-ignore no-explicit-any
     } catch (error: any) {
-        ctx.response.status = Status.Unauthorized
+        ctx.response.status = error.status
         ctx.response.body = { message: error.message }
     }
 }
