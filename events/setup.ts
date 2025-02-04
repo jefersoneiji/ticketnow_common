@@ -24,14 +24,18 @@ class Nats {
     }
 
     async init() {
-        console.log('THIS SERVER IS: ', process.env.NATS_URL)
-        const natsConnection = await connect({ servers: this.server })
-        console.log('NATS INFO: ', natsConnection.info)
-        const jetStreamManager = await jetstreamManager(natsConnection)
+        try {
+            console.log('THIS SERVER IS: ', process.env.NATS_URL)
+            const natsConnection = await connect({ servers: this.server })
+            console.log('NATS INFO: ', natsConnection.info)
+            const jetStreamManager = await jetstreamManager(natsConnection)
 
-        this.jetStreamClient = jetstream(natsConnection)
-        this.jetStreamManager = jetStreamManager
-        this.natsConnection = natsConnection
+            this.jetStreamClient = jetstream(natsConnection)
+            this.jetStreamManager = jetStreamManager
+            this.natsConnection = natsConnection
+        } catch (err) {
+            console.log('ERROR IN NATS IS: ', err)
+        }
     }
 
     async addStream(config: WithRequired<Partial<StreamConfig>, "name">) {
@@ -71,7 +75,7 @@ class Nats {
     }
 
     // async publish(subject: string, payload: Payload) {
-    async publish<T>(subject: string, payload?: T ) {
+    async publish<T>(subject: string, payload?: T) {
         await this.init()
         if (!this.jetStreamClient) {
             console.log('jetStreamClient is undefined!')
