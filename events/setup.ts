@@ -17,7 +17,7 @@ class Nats {
     public jetStreamManager?: JetStreamManager
     private jetStreamClient?: JetStreamClient
 
-    server?: string = process.env.JWT_KEY
+    server?: string = process.env.NATS_URL
 
     constructor(server?: string) {
         this.server = server
