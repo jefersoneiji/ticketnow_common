@@ -24,7 +24,9 @@ class Nats {
     }
 
     async init() {
+        console.log('THIS SERVER IS: ', process.env.NATS_URL)
         const natsConnection = await connect({ servers: this.server })
+        console.log('NATS INFO: ', natsConnection.info)
         const jetStreamManager = await jetstreamManager(natsConnection)
 
         this.jetStreamClient = jetstream(natsConnection)
