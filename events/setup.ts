@@ -1,4 +1,4 @@
-import { connect, type NatsConnection } from "@nats-io/transport-deno"
+import { connect, type NatsConnection } from "jsr:@nats-io/transport-deno@^3.0.0-21"
 import {
     type ConsumerCallbackFn,
     type ConsumerConfig,
@@ -8,8 +8,8 @@ import {
     jetstreamManager,
     type OrderedConsumerOptions,
     type StreamConfig
-} from "@nats-io/jetstream";
-import type { WithRequired } from "@nats-io/nats-core/internal";
+} from "jsr:@nats-io/jetstream@^3.0.0-37";
+import type { WithRequired } from "jsr:@nats-io/nats-core@^3.0.0-50/internal";
 import process from "node:process";
 
 class Nats {
