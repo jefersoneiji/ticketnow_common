@@ -49,8 +49,8 @@ export class nats {
     }
 
     // async publish(subject: string, payload: Payload) {
-    async publish<T>(subject: string, payload?: T) {
-        await this.jetStreamClient.publish(subject, payload?.toString())
+    async publish<T>(subject: string, payload: T) {
+        await this.jetStreamClient.publish(subject, JSON.stringify(payload))
     }
 
     async getConsumer(stream: string,
