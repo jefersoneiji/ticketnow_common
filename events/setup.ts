@@ -1,4 +1,4 @@
-import { connect, type NatsConnection } from "jsr:@nats-io/transport-deno@^3.0.0-21"
+import type { NatsConnection } from "jsr:@nats-io/transport-deno@^3.0.0-21"
 import {
     type ConsumerCallbackFn,
     type ConsumerConfig,
@@ -10,49 +10,29 @@ import {
     type StreamConfig
 } from "jsr:@nats-io/jetstream@^3.0.0-37";
 import type { WithRequired } from "jsr:@nats-io/nats-core@^3.0.0-50/internal";
-import process from "node:process";
 
-class Nats {
-    public natsConnection?: NatsConnection
-    public jetStreamManager?: JetStreamManager
-    private jetStreamClient?: JetStreamClient
+export const init = async (connection: NatsConnection) => {
+    const jetStreamManager = await jetstreamManager(connection)
+    const jetStreamClient = jetstream(connection)
+    return { jetStreamManager, jetStreamClient, natsConnection: connection }
+}
 
-    server?: string = process.env.NATS_URL
+export class nats {
+    public natsConnection: NatsConnection
+    public jetStreamManager: JetStreamManager
+    private jetStreamClient: JetStreamClient
 
-    constructor(server?: string) {
-        this.server = server
-    }
-
-    async init() {
-        try {
-            console.log('THIS SERVER IS: ', process.env.NATS_URL)
-            const natsConnection = await connect({ servers: this.server, debug: true })
-            console.log('NATS INFO: ', natsConnection.info)
-            const jetStreamManager = await jetstreamManager(natsConnection)
-
-            this.jetStreamClient = jetstream(natsConnection)
-            this.jetStreamManager = jetStreamManager
-            this.natsConnection = natsConnection
-        } catch (err) {
-            console.log('ERROR IN NATS IS: ', err)
-        }
+    constructor(connection: NatsConnection, jetStreamClient: JetStreamClient, jetStreamManager: JetStreamManager) {
+        this.jetStreamManager = jetStreamManager
+        this.jetStreamClient = jetStreamClient
+        this.natsConnection = connection
     }
 
     async addStream(config: WithRequired<Partial<StreamConfig>, "name">) {
-        await this.init()
-        if (!this.jetStreamManager) {
-            console.log('jetStreamManager is undefined!')
-            return
-        }
         await this.jetStreamManager.streams.add(config)
     }
 
     async addConsumer(stream: string, config: Partial<ConsumerConfig>) {
-        await this.init()
-        if (!this.jetStreamManager) {
-            console.log('jetStreamManager is undefined!')
-            return
-        }
         await this.jetStreamManager.consumers.add(stream, config)
     }
 
@@ -61,12 +41,6 @@ class Nats {
         consumerName?: string | Partial<OrderedConsumerOptions>,
         callback?: ConsumerCallbackFn | undefined
     ) {
-        await this.init()
-        if (!this.jetStreamClient) {
-            console.log('jetStreamClient is undefined!')
-            return
-        }
-
         const consumer = await this.jetStreamClient.consumers.get(stream, consumerName)
 
         await consumer.consume({ callback })
@@ -76,24 +50,12 @@ class Nats {
 
     // async publish(subject: string, payload: Payload) {
     async publish<T>(subject: string, payload?: T) {
-        await this.init()
-        if (!this.jetStreamClient) {
-            console.log('jetStreamClient is undefined!')
-            return
-        }
-
         await this.jetStreamClient.publish(subject, payload?.toString())
     }
 
     async getConsumer(stream: string,
         consumerName?: string | Partial<OrderedConsumerOptions>
     ) {
-        if (!this.jetStreamClient) {
-            console.log('jetStreamClient is undefined!')
-            return
-        }
         return await this.jetStreamClient.consumers.get(stream, consumerName)
     }
 }
-
-export const nats = new Nats()
