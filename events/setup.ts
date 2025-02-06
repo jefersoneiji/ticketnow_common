@@ -27,8 +27,6 @@ export class nats {
         this.jetStreamManager = jetStreamManager
         this.jetStreamClient = jetStreamClient
         this.natsConnection = connection
-
-        process.on('exit', async () => await connection.close())
     }
 
     async addStream(config: WithRequired<Partial<StreamConfig>, "name">) {
