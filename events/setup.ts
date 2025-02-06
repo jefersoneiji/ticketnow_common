@@ -10,6 +10,7 @@ import {
     type StreamConfig
 } from "jsr:@nats-io/jetstream@^3.0.0-37";
 import type { WithRequired } from "jsr:@nats-io/nats-core@^3.0.0-50/internal";
+import process from "node:process";
 
 export const init = async (connection: NatsConnection) => {
     const jetStreamManager = await jetstreamManager(connection)
@@ -26,6 +27,8 @@ export class nats {
         this.jetStreamManager = jetStreamManager
         this.jetStreamClient = jetStreamClient
         this.natsConnection = connection
+
+        process.on('exit', async () => await connection.close())
     }
 
     async addStream(config: WithRequired<Partial<StreamConfig>, "name">) {
@@ -48,9 +51,33 @@ export class nats {
         return consumer
     }
 
-    // async publish(subject: string, payload: Payload) {
     async publish<T>(subject: string, payload: T) {
         await this.jetStreamClient.publish(subject, JSON.stringify(payload))
+    }
+
+    async listen(
+        streamName: string,
+        consumerName: string | undefined,
+        consumerConfig: Partial<ConsumerConfig>,
+        consumerCallback?: ConsumerCallbackFn
+    ) {
+        await this.addConsumer(streamName, consumerConfig)
+        await this.consume(streamName, consumerName, consumerCallback)
+
+        this.listenerCleanUp(streamName, consumerName)
+    }
+
+    listenerCleanUp(streamName: string, consumerName?: string) {
+        process.on('SIGTERM', async () => {
+            const consumer = await this.getConsumer(streamName, consumerName)
+            consumer.delete()
+            process.exit()
+        })
+        process.on('SIGINT', async () => {
+            const consumer = await this.getConsumer(streamName, consumerName)
+            consumer.delete()
+            process.exit()
+        })
     }
 
     async getConsumer(stream: string,
