@@ -29,3 +29,8 @@ export interface IOrderCancelled<T> {
     subject: Subjects.OrderCancelled,
     data: T & IEvent
 }
+
+export interface IExpirationComplete<T> {
+    subject: Subjects.ExpirationComplete,
+    data: T & IEvent
+}
