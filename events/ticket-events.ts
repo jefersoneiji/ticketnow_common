@@ -34,3 +34,8 @@ export interface IExpirationComplete<T> {
     subject: Subjects.ExpirationComplete,
     data: T & IEvent
 }
+
+export interface IPaymentCreated<T> {
+    subject: Subjects.PaymentCreated,
+    data: T & IEvent
+}
