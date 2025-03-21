@@ -15,7 +15,7 @@ export const authHandler: Middleware<{ session: Session }> = async (ctx: Context
         if (!isLogged) {
             throw createHttpError(Status.Unauthorized, 'Provide a valid authentication.')
         }
-        ctx.response.body = isLogged
+        ctx.user = isLogged
         await next()
 
         // deno-lint-ignore no-explicit-any
